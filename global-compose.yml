@@ -9,8 +9,9 @@ services:
         PG_MAJOR: '13'
         NODE_MAJOR: '14'
         YARN_VERSION: '1.22.5'
-    image: dip-rails:1.0.1
-    environment: &env
+        RUBY_VERSION: '2.7'
+    image: dip-ruby:2.7
+    environment:
       NODE_ENV: ${NODE_ENV:-development}
       DATABASE_URL: postgres://postgres:postgres@postgres:5432
       REDIS_URL: redis://redis:6379/
@@ -24,7 +25,7 @@ services:
     volumes:
       - ${PWD}:/${PWD}:cached
       - nodemodules_rails:/${PWD}/node_modules
-      - bundler_rails:/usr/local/bundle
+      - bundler_data:/usr/local/bundle
       - history:/usr/local/hist
       - ./.bashrc:/root/.bashrc:ro
       - ./.irbrc:/root/.irbrc:ro
@@ -43,79 +44,37 @@ services:
       - postgres
       - redis
 
-  # Current stable Ruby
-  ruby: &ruby
-    command: bash
-    image: ruby:2.7
-    volumes:
-      - ${PWD}:/${PWD}:cached
-      - bundler_data:/usr/local/bundle
-      - history:/usr/local/hist
-      - ./.bashrc:/root/.bashrc:ro
-      - ./.irbrc:/root/.irbrc:ro
-      - ./.pryrc:/root/.pryrc:ro
-    environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432
-      REDIS_URL: redis://redis:6379/
-      HISTFILE: /usr/local/hist/.bash_history
-      LANG: C.UTF-8
-      PROMPT_DIRTRIM: 2
-      PS1: '[\W]\! '
-      # Plays nice with gemfiles/*.gemfile files for CI
-      BUNDLE_GEMFILE: ${BUNDLE_GEMFILE:-Gemfile}
-    # And that's the second part of the spell
-    working_dir: ${PWD}
-    # Specify frequenlty used ports to expose (9292 — Puma, 3000 — Rails).
-    # Use `dip ruby server` to run a container with ports exposed.
-    # Note that we "prefix" the ports with "1", so, 9292 will be available at 19292 on the host machine.
-    ports:
-      - 19292:9292
-      - 13000:3000
-      - 18080:8080
-    tmpfs:
-      - /tmp
-
-  # Edge Ruby
-  ruby-latest:
-    <<: *ruby
-    image: rubocophq/ruby-snapshot:latest
-    volumes:
-      - ${PWD}:/${PWD}:cached
-      - bundler_data_edge:/usr/local/bundle
-      - history:/usr/local/hist
-      - ./.irbrc:/root/.irbrc:ro
-      - ./.pryrc:/root/.pryrc:ro
-      - ./.bashrc:/root/.bashrc:ro
-
-  rails-edge:
+  rails-latest:
     <<: *rails
     build:
-      context: rails_edge
+      context: rails
       dockerfile: Dockerfile
       args:
         PG_MAJOR: '13'
         NODE_MAJOR: '16'
         YARN_VERSION: '1.22.17'
-    image: dip-rails:2.0.0
+        RUBY_VERSION: '3.1'
+    image: dip-ruby:3.1
     volumes:
       - ${PWD}:/${PWD}:cached
       - nodemodules_rails:/${PWD}/node_modules
-      - bundler_rails:/usr/local/bundle
+      - bundler3_data:/usr/local/bundle
       - history:/usr/local/hist
       - ./.bashrc:/root/.bashrc:ro
       - ./.irbrc:/root/.irbrc:ro
       - ./.pryrc:/root/.pryrc:ro
 
   ruby-legacy:
-    <<: *ruby
-    image: ruby:2.5
-    volumes:
-      - ${PWD}:/${PWD}:cached
-      - bundler_data_legacy:/usr/local/bundle
-      - history:/usr/local/hist
-      - ./.irbrc:/root/.irbrc:ro
-      - ./.pryrc:/root/.pryrc:ro
-      - ./.bashrc:/root/.bashrc:ro
+    <<: *rails
+    build:
+      context: rails
+      dockerfile: Dockerfile
+      args:
+        PG_MAJOR: '13'
+        NODE_MAJOR: '14'
+        YARN_VERSION: '1.22.17'
+        RUBY_VERSION: '2.5'
+    image: dip-ruby:2.5
 
   postgres:
     image: postgres:13.5
@@ -147,8 +106,6 @@ volumes:
   postgres:
   redis:
   bundler_data:
-  bundler_rails:
-  bundler_data_edge:
-  bundler_data_legacy:
+  bundler3_data:
   history:
   nodemodules_rails:

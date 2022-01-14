@@ -1,10 +1,22 @@
-FROM quay.io/evl.ms/fullstaq-ruby:2.7.4-jemalloc-buster-slim
-SHELL ["/bin/bash", "-c"]
+ARG RUBY_VERSION
+FROM ruby:$RUBY_VERSION-slim-buster
 
 ARG PG_MAJOR
 ARG NODE_MAJOR
 ARG YARN_VERSION
 
+# Common dependencies
+RUN apt-get update -qq \
+  && DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
+    build-essential \
+    gnupg2 \
+    curl \
+    less \
+    git \
+  && apt-get clean \
+  && rm -rf /var/cache/apt/archives/* \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+  && truncate -s 0 /var/log/*log
 # Download MIME types database for mimemagic
 RUN apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get -yq dist-upgrade && \
     DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
