@@ -38,10 +38,6 @@ interaction:
     description: Run psql console
     service: postgres
     command: psql -d postgres://postgres:postgres@postgres
-  createdb:
-    description: Run PostgreSQL createdb command
-    service: postgres
-    command: createdb -h postgres -U postgres
   "redis-cli":
     description: Run Redis console
     service: redis
