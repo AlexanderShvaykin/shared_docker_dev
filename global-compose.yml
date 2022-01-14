@@ -87,15 +87,15 @@ services:
       - ./.pryrc:/root/.pryrc:ro
       - ./.bashrc:/root/.bashrc:ro
 
-  rails7:
+  rails-edge:
     <<: *rails
     build:
-      context: rails
+      context: rails_edge
       dockerfile: Dockerfile
       args:
         PG_MAJOR: '13'
-        NODE_MAJOR: '14'
-        YARN_VERSION: '1.22.5'
+        NODE_MAJOR: '16'
+        YARN_VERSION: '1.22.17'
     image: dip-rails:2.0.0
     volumes:
       - ${PWD}:/${PWD}:cached
@@ -106,7 +106,6 @@ services:
       - ./.irbrc:/root/.irbrc:ro
       - ./.pryrc:/root/.pryrc:ro
 
-  # Legacy Ruby
   ruby-legacy:
     <<: *ruby
     image: ruby:2.5
@@ -117,7 +116,7 @@ services:
       - ./.irbrc:/root/.irbrc:ro
       - ./.pryrc:/root/.pryrc:ro
       - ./.bashrc:/root/.bashrc:ro
-  # Current flavor of PostgreSQL
+
   postgres:
     image: postgres:13.5
     volumes:
@@ -130,9 +129,9 @@ services:
       PGPASSWORD: postgres
     ports:
       - 5432
-  # Current flavor or Redis
+
   redis:
-    image: redis:5-alpine
+    image: redis:6-alpine
     volumes:
       - redis:/data
     ports:

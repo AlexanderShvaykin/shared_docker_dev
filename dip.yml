@@ -1,0 +1,48 @@
+version: "5.0"
+
+compose:
+  files:
+    - ./.dip/global-compose.yml
+  project_name: shared_dip_env
+
+interaction:
+  rails: &rails
+    description: Open Rails service terminal
+    service: rails
+    command: /bin/bash
+    subcommands:
+      server:
+        description: Open rails service terminal with ports exposed (9292 -> 19292, 3000 -> 13000, 8080 -> 18080)
+        compose:
+          run_options: [service-ports]
+  ruby: &ruby
+    description: Open Ruby service terminal
+    service: ruby
+    command: /bin/bash
+    subcommands:
+      server:
+        description: Open Ruby service terminal with ports exposed (9292 -> 19292, 3000 -> 13000, 8080 -> 18080)
+        compose:
+          run_options: [service-ports]
+  "ruby:latest":
+    <<: *ruby
+    service: ruby-latest
+  "ruby:legacy":
+    <<: *ruby
+    service: ruby-legacy
+  "rails:latest":
+    <<: *rails
+    service: rails-edge
+
+  psql:
+    description: Run psql console
+    service: postgres
+    command: psql -d postgres://postgres:postgres@postgres
+  createdb:
+    description: Run PostgreSQL createdb command
+    service: postgres
+    command: createdb -h postgres -U postgres
+  "redis-cli":
+    description: Run Redis console
+    service: redis
+    command: redis-cli -h redis

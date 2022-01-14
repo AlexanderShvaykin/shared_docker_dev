@@ -1,4 +1,4 @@
-FROM ruby:lasted 
+FROM rubocophq/ruby-snapshot:latest 
 SHELL ["/bin/bash", "-c"]
 
 ARG PG_MAJOR
